@@ -16,8 +16,10 @@ module ActiveModel
         include InstanceMethodsOnActivation
 
         before_create do
-          self.otp_regenerate_secret if !otp_column
-          self.otp_regenerate_counter if otp_counter_based && !otp_counter
+          if ((options[:if].present? && options[:if].call) || (options[:unless].present? && !options[:unless].call))
+            self.otp_regenerate_secret if !otp_column
+            self.otp_regenerate_counter if otp_counter_based && !otp_counter
+          end
         end
 
         if respond_to?(:attributes_protected_by_default)
